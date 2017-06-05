@@ -55,6 +55,7 @@ if isinstance(TMP_STORAGE_CLASS, six.string_types):
 #: These are the default formats for import and export. Whether they can be
 #: used or not is depending on their implementation in the tablib library.
 DEFAULT_FORMATS = (
+    base_formats.TXT,
     base_formats.CSV,
     base_formats.XLS,
     base_formats.XLSX,
@@ -142,7 +143,8 @@ class ImportMixin(ImportExportMixinBase):
         """
         Returns available import formats.
         """
-        return [f for f in self.formats if f().can_import()]
+        formats = [f for f in self.formats if f().can_import()]
+        return formats
 
     @method_decorator(require_POST)
     def process_import(self, request, *args, **kwargs):
@@ -241,6 +243,9 @@ class ImportMixin(ImportExportMixinBase):
 
         import_formats = self.get_import_formats()
         form_type = self.get_import_form()
+        print(form_type) # import_export.forms.ImportForm
+        from import_export.forms import ImportForm
+
         form = form_type(import_formats,
                          request.POST or None,
                          request.FILES or None)
@@ -249,6 +254,7 @@ class ImportMixin(ImportExportMixinBase):
             input_format = import_formats[
                 int(form.cleaned_data['input_format'])
             ]()
+
             import_file = form.cleaned_data['import_file']
             # first always write the uploaded file to disk as it may be a
             # memory file or else based on settings upload handlers

@@ -135,8 +135,26 @@ class TextFormat(TablibFormat):
         return False
 
 
+class TXT(TextFormat):
+    TABLIB_MODULE = 'tablib.formats._csv'
+    CONTENT_TYPE = 'text/text'
+
+    def create_dataset(self, in_stream, **kwargs):
+        if sys.version_info[0] < 3:
+            # python 2.7 csv does not do unicode
+            return super(TXT, self).create_dataset(in_stream.encode('utf-8'), **kwargs)
+        return super(TXT, self).create_dataset(in_stream, **kwargs)
+
+    def get_title(self):
+        return 'txt'
+
+    def get_extension(self):
+        return 'txt'
+
+
 class CSV(TextFormat):
     TABLIB_MODULE = 'tablib.formats._csv'
+    from tablib.formats import _csv
     CONTENT_TYPE = 'text/csv'
 
     def create_dataset(self, in_stream, **kwargs):
